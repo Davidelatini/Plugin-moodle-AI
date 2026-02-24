@@ -32,6 +32,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use context;
 use context_block;
 
 /**
@@ -71,7 +72,10 @@ class send_message extends external_api {
         ]);
 
         // Validate context and capabilities.
-        $context = context_block::instance($params['contextid']);
+        // $params['contextid'] is the context table ID (from $this->context->id in the block),
+        // so we must use context::instance_by_id(), NOT context_block::instance() which
+        // expects the block instance ID.
+        $context = context::instance_by_id($params['contextid']);
         self::validate_context($context);
         require_capability('block/aichatbot:chat', $context);
 
