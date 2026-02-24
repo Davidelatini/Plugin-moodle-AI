@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/externallib.php');
 
+use core_text;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
