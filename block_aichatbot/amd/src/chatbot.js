@@ -173,33 +173,31 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
                 appendMessage('user', text, false);
                 showThinking();
 
-                var calls = Ajax.call([{
+                // Use jQuery deferred .done()/.fail()/.always() — this is what
+                // core/ajax returns and guarantees .always() runs in every case.
+                Ajax.call([{
                     methodname: 'block_aichatbot_send_message',
                     args: {
                         contextid: config.contextid,
                         sessionid: sessionId,
                         message: text
                     }
-                }]);
-
-                calls[0].then(function(result) {
+                }])[0]
+                .done(function(result) {
                     removeThinking();
                     if (result.success) {
                         appendMessage('assistant', result.response, false);
                     } else {
-                        appendMessage('assistant', '&#9888;&#65039; ' + escapeHtml(result.response), true);
+                        appendMessage('assistant', '\u26a0\ufe0f ' + escapeHtml(result.response), true);
                     }
-                    return result;
-                }).catch(function(err) {
+                })
+                .fail(function(err) {
                     removeThinking();
-                    Notification.exception(err);
-                    appendMessage('assistant', '&#9888;&#65039; ' + escapeHtml(err.message || 'Unexpected error.'), true);
-                }).then(function() {
-                    isWaiting = false;
-                    setInputDisabled(false);
-                    input.focus();
-                    return;
-                }).catch(function() {
+                    var msg = (err && err.message) ? err.message : 'Service call failed.';
+                    appendMessage('assistant', '\u26a0\ufe0f ' + escapeHtml(msg), true);
+                })
+                .always(function() {
+                    // Guaranteed to run regardless of success or failure.
                     isWaiting = false;
                     setInputDisabled(false);
                     input.focus();

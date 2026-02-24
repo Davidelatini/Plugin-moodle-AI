@@ -166,7 +166,7 @@ class send_message extends external_api {
             'userid = :userid AND sessionid = :sessionid',
             ['userid' => $userid, 'sessionid' => $sessionid],
             'timecreated ASC',
-            'role, message',
+            'id, role, message',   // 'id' is required so Moodle can key the result array
             0, 20  // last 20 rows = ~10 exchanges
         );
 
