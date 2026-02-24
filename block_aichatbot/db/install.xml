@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/aichatbot/db" VERSION="20240224" COMMENT="XMLDB file for block_aichatbot"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+
+    <!-- Conversation log table -->
+    <TABLE NAME="block_aichatbot_log" COMMENT="Stores chatbot conversation logs">
+      <FIELDS>
+        <FIELD NAME="id"          TYPE="int"  LENGTH="10" NOTNULL="true"  SEQUENCE="true"/>
+        <FIELD NAME="userid"      TYPE="int"  LENGTH="10" NOTNULL="true"  SEQUENCE="false" COMMENT="ID of the Moodle user"/>
+        <FIELD NAME="contextid"   TYPE="int"  LENGTH="10" NOTNULL="true"  SEQUENCE="false" COMMENT="Block context ID"/>
+        <FIELD NAME="sessionid"   TYPE="char" LENGTH="64" NOTNULL="true"  SEQUENCE="false" COMMENT="Unique chat session ID"/>
+        <FIELD NAME="role"        TYPE="char" LENGTH="16" NOTNULL="true"  SEQUENCE="false" COMMENT="user or assistant"/>
+        <FIELD NAME="message"     TYPE="text"             NOTNULL="true"  SEQUENCE="false" COMMENT="Message content"/>
+        <FIELD NAME="timecreated" TYPE="int"  LENGTH="10" NOTNULL="true"  SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid_session" UNIQUE="false" FIELDS="userid, sessionid"/>
+        <INDEX NAME="idx_contextid"      UNIQUE="false" FIELDS="contextid"/>
+        <INDEX NAME="idx_timecreated"    UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Rate limiting table -->
+    <TABLE NAME="block_aichatbot_ratelimit" COMMENT="Tracks per-user message counts for rate limiting">
+      <FIELDS>
+        <FIELD NAME="id"         TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid"     TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="hour_slot"  TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Unix timestamp truncated to the hour"/>
+        <FIELD NAME="msgcount"   TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_userid_hourslot" UNIQUE="true" FIELDS="userid, hour_slot"/>
+      </INDEXES>
+    </TABLE>
+
+  </TABLES>
+</XMLDB>
